@@ -27,6 +27,6 @@ Ideal para quienes quieren un **asistente de compras práctico** que combine tex
 ---
 
 ### ⚜️Colaboradores:
-* ⭐[Keila Mateo](https://github.com/keilaNerea06)
-* 🌑[Geraldine Vargas](https://github.com/Gerald-Vargas)
-* ☀️[Aylén Toledo](https://github.com/Aylen-xd)
+* [Keila Mateo](https://github.com/keilaNerea06)
+* [Geraldine Vargas](https://github.com/Gerald-Vargas)
+* [Aylén Toledo](https://github.com/Aylen-xd)
