@@ -1,6 +1,4 @@
-# Capstone_Proyect-Proyecto_Bot 🛒🤖
-
-# Supermercado Inteligente en Telegram 🛒🤖
+# Capstone_Proyect-Proyecto_Bot - Supermercado Inteligente en Telegram 🛒🤖
 
 Este proyecto es un **chatbot de compras para Telegram** que funciona como un asistente personal de supermercado. Permite al usuario organizar listas de compras, consultar precios y recibir sugerencias de ingredientes de manera rápida e interactiva.
 
