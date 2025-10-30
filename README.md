@@ -25,3 +25,8 @@ Este proyecto es un **chatbot de compras para Telegram** que funciona como un as
 Ideal para quienes quieren un **asistente de compras práctico** que combine texto, voz e imágenes, ayudando a ahorrar tiempo y facilitar la organización de compras.
 
 ---
+
+### ⚜️Colaboradores:
+* ⭐[Keila Mateo](https://github.com/keilaNerea06)
+* 🌑[Geraldine Vargas](https://github.com/Gerald-Vargas)
+* ☀️[Aylén Toledo](https://github.com/Aylen-xd)
