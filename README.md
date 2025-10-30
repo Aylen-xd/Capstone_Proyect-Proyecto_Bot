@@ -1,4 +1,4 @@
-# Capstone_Proyect-Proyecto_Bot
+# Capstone_Proyect-Proyecto_Bot 🛒🤖
 
 # Supermercado Inteligente en Telegram 🛒🤖
 
