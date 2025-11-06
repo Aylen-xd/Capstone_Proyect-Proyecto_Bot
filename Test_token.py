@@ -1,8 +1,6 @@
 import os 
 
-TOKEN_BOT_TELEGRAM = os.getenv("TELEGRAM_BOT_TOKEN")
+if not TOKEN_BOT_TELEGRAM:
 
-if TOKEN_BOT_TELEGRAM:
-    print("Token encontrado")
-else:
-    print("token no encontrado")
+    raise ValueError("TELEGRAM_BOT_TOKEN no está configurado en las variables de entorno")
+
