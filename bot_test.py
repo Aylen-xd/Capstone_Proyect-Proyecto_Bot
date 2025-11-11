@@ -1,38 +1,3 @@
-"""
-
-import os
-from dotenv import load_dotenv
-from telegram import Update
-from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, filters, ContextTypes
-
-# Carga del token desde .env
-load_dotenv()
-TOKEN = os.getenv("TELEGRAM_TOKEN")
-
-# /start
-async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("👋 ¡Hola! Soy tu bot de prueba. Envíame un audio y te lo convierto a texto.")
-
-# Mensajes de audio (más adelante integrarás tu feature de voz acá)
-async def manejar_audio(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("🎤 Recibí tu audio (todavía no lo proceso).")
-
-def main():
-    app = ApplicationBuilder().token(TOKEN).build()
-
-    # Agregar comandos y handlers
-    app.add_handler(CommandHandler("start", start))
-    app.add_handler(MessageHandler(filters.VOICE, manejar_audio))
-
-    print("🤖 Bot en ejecución... (Ctrl+C para detener)")
-    app.run_polling()
-
-if __name__ == "__main__":
-    main()
-
-    
-"""
-
 import os
 import speech_recognition as sr
 from pydub import AudioSegment
