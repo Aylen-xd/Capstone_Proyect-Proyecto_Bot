@@ -81,8 +81,7 @@ def get_groq_response(user_message: str):
                     "content": user_message
                 }
             ],
-            modelo = "llama-3.3-70b-versatile",
-            #grado de creaividad, mas cerca del 0 menos creativo, mas lejos se vuelve mas loco, mas cerca del 1 es mas creativo
+            modelo = "llama-3.3-70b-versatile",            #grado de creaividad, mas cerca del 0 menos creativo, mas lejos se vuelve mas loco, mas cerca del 1 es mas creativo
             temperature = 0.3, 
             #cantidad de tokens que va a contestar
             max_tokens = 500
@@ -104,7 +103,7 @@ def transcribe_voic_with_groq(message: tlb.types.Message) -> Optional[str]:
         with open(temp_file, "wb") as f:
             f.write(download_file)
         with open(temp_file, "rb") as file:
-            transcription = groq_client.audio.transcriptions.create(
+            transcription = grok_client.audio.transcriptions.create(
                 file = (temp_file, file.read()),
                 model = "whisper-large-v3-turbo",
                 prompt = "especificar contexto o pronunciacion",
@@ -120,8 +119,49 @@ def transcribe_voic_with_groq(message: tlb.types.Message) -> Optional[str]:
     except Exception as e:
         print(f"Error al transcribir: {str(e)}")
         return None
+"""
 
-#PROGRAMAR LO QUEL OT VA A HACER
+def transcribe_voic_with_groq(message: tlb.types.Message) -> Optional[str]:
+    try: 
+        # ... (código anterior para descargar y guardar el archivo temporal) ...
+        file_info = bot.get_file(message.voice.file_id)
+        download_file = bot.download_file(file_info.file_path)
+        temp_file = "temp_voice.ogg"
+
+        # guardar el archivo de forma temporal
+        with open(temp_file, "wb") as f:
+            f.write(download_file)
+
+        # *** CÓDIGO CORREGIDO AQUÍ ***
+        with open(temp_file, "rb") as audio_file:
+            transcription = grok_client.audio.transcriptions.create(
+                # ¡CORRECCIÓN! Pasar el objeto de archivo (audio_file)
+                # en lugar de la tupla (temp_file, file.read())
+                file = audio_file, 
+                model = "whisper-large-v3-turbo",
+                # OJO: Revisé tus demás argumentos. El SDK podría 
+                # esperar 'response_format' en lugar de 'responde_fromat', 
+                # y 'language' en lugar de 'laguage'.
+                response_format = "json", # CORRECCIÓN de typo
+                language = "es",          # CORRECCIÓN de typo
+                temperature = 1
+            )
+
+        os.remove(temp_file)
+
+        # OJO: La respuesta de transcripción no suele ser un diccionario.
+        # Es probable que debas acceder al atributo .text o .content 
+        # de la respuesta del SDK de Groq.
+        # Asumiendo que el SDK devuelve un objeto con un atributo 'text':
+        return transcription.text
+    
+    except Exception as e:
+        print(f"Error al transcribir: {str(e)}")
+        return None
+        """ 
+        
+#PROGRAMAR LO QUE EL BOT VA A HACER
+
 
 #comando que va a usar el bot
 @bot.message_handler(commands=["start", "help"])
@@ -132,7 +172,7 @@ def send_welcome(message: tlb.types.Message):
         return 
     bot.send_chat_action(message.chat.id, "Typing")
 
-    welcome_prompt = "genear un mensaje de bienvenida para el SupermercadoIA, que incluya una breve descripcion del bot y que mencione que puede consultar de productos y precios"
+    welcome_prompt = "generar un mensaje de bienvenida para el SupermercadoIA, que incluya una breve descripcion del bot y que mencione que puede consultar de productos y precios en base a los audios que envian"
 
     response = get_groq_response(message.text)
 
@@ -142,13 +182,12 @@ def send_welcome(message: tlb.types.Message):
         error = "perdon, no pude procesar su mensaje, vuelva despues"
         bot.reply_to(message, error)
 
-
 #restos de mensajes
 #manipulacion de texto
 @bot.message_handler(content_types=['text'])
 def handle_text_message(message: tlb.types.Message):
     if not company_data:
-        bot.reply_to(message, "Error no se cargaron los datso de la empresa, por favor intente mas tarde")
+        bot.reply_to(message, "Error no se cargaron los datos de la empresa, por favor intente mas tarde")
         return 
     bot.send_chat_action(message.chat.id, "typing")
     response = get_groq_response(message.text)
@@ -156,14 +195,12 @@ def handle_text_message(message: tlb.types.Message):
     if response:
         bot.reply_to(message, response)
     else:
-        error = "perdon, no pude procesar su mensaje, vuelva despues"
+        error = "perdon, no pude procesar su mensaje de voz, vuelva despues"
         bot.reply_to(message, error)
 
 #HASTA ACA FUE PARTE DE TEXTO
 
-
 #MANEJAR VOZ
-
 @bot.message_handler(content_types=['voice'])
 def hanlder_voice_message(message: tlb.types.Message):
     if not company_data:
@@ -176,15 +213,13 @@ def hanlder_voice_message(message: tlb.types.Message):
     transcription = transcribe_voic_with_groq(message)
 
     if not transcription:
-        bot.reply_to(message, "Perdon no puedo transcribir tu audio porque no modulas como una persona normal, saludos")
+        bot.reply_to(message, "Perdon no puedo transcribir tu audio, saludos")
         return
     #si lo transcribe le mandamos a goq para que haga su respuesta
     response = get_groq_response(transcription)
     if response:
         bot.reply_to(message, response)
     else: error = "No pude procesar la consulta"
-
-
 
 
 if __name__ == "__main__":
@@ -198,5 +233,4 @@ if __name__ == "__main__":
                 print(f"Error, no se pudo procesar por: {str(e)}")
                 print("Reiniciando el bot")
                 time.sleep(5)
-            else: print(f"No se pudo cargar nada, fijate donde esat el error bobi")
-
+            else: print(f"No se pudo cargar nada, fijate donde esta el error bobi")
