@@ -18,7 +18,7 @@ load_dotenv()
 
 #levanta las variables de entorno
 TELEGRAM_TOKEN = os.getenv('TELEGRAM_TOKEN')
-GROQ_API_KEY = os.getenv('GROK_TELEGRAM')
+GROQ_API_KEY = os.getenv('GROQ_API_KEY')
 
 #verificar que todo funcione
 #Validacion de carga de variable
@@ -68,12 +68,10 @@ def get_groq_response(user_message: str):
     3- Si l ainfromacion solicitada no se encuentra en el dataset, sugiere contactar a supermercado.com
     4- No responder preguntas no relacionadas con la empresa
     """
-        
-        #va a manejar todo el bot, porque va amanejar toda la inteligencia artifical
         chat_completion = grok_client.chat.completions.create(
-            message = [
+            messages=[
                 {
-                    "role": "system", 
+                    "role": "system",
                     "content": system_prompt
                 },
                 {
@@ -81,18 +79,19 @@ def get_groq_response(user_message: str):
                     "content": user_message
                 }
             ],
-            modelo = "llama-3.3-70b-versatile",            #grado de creaividad, mas cerca del 0 menos creativo, mas lejos se vuelve mas loco, mas cerca del 1 es mas creativo
-            temperature = 0.3, 
-            #cantidad de tokens que va a contestar
-            max_tokens = 500
+            model="llama-3.3-70b-versatile",
+            temperature=0.3,
+            max_tokens=500
         )
-        return chat_completion.choice[0].message.content.strip()
 
+        return chat_completion.choices[0].message.content.strip()
+
+    
     except Exception as e:
         print(f"No se puedo obtener la reuesta: {str(e)}")
         return None
  
-
+"""
 def transcribe_voic_with_groq(message: tlb.types.Message) -> Optional[str]:
     try: 
         file_info = bot.get_file(message.voice.file_id)
@@ -107,9 +106,9 @@ def transcribe_voic_with_groq(message: tlb.types.Message) -> Optional[str]:
                 file = (temp_file, file.read()),
                 model = "whisper-large-v3-turbo",
                 prompt = "especificar contexto o pronunciacion",
-                responde_fromat = "json",
-                laguage = "es",
-                temperature = 1
+                response_format="json",  
+                language="es",   
+                temperature=1
             )
 
             os.remove(temp_file)
@@ -120,46 +119,47 @@ def transcribe_voic_with_groq(message: tlb.types.Message) -> Optional[str]:
         print(f"Error al transcribir: {str(e)}")
         return None
 """
-
 def transcribe_voic_with_groq(message: tlb.types.Message) -> Optional[str]:
-    try: 
-        # ... (código anterior para descargar y guardar el archivo temporal) ...
+    temp_file = "temp_voice.ogg"
+
+    try:
+        # Descarga de Telegram
         file_info = bot.get_file(message.voice.file_id)
         download_file = bot.download_file(file_info.file_path)
-        temp_file = "temp_voice.ogg"
 
-        # guardar el archivo de forma temporal
+        # Guardar archivo temporal
         with open(temp_file, "wb") as f:
             f.write(download_file)
 
-        # *** CÓDIGO CORREGIDO AQUÍ ***
-        with open(temp_file, "rb") as audio_file:
-            transcription = grok_client.audio.transcriptions.create(
-                # ¡CORRECCIÓN! Pasar el objeto de archivo (audio_file)
-                # en lugar de la tupla (temp_file, file.read())
-                file = audio_file, 
-                model = "whisper-large-v3-turbo",
-                # OJO: Revisé tus demás argumentos. El SDK podría 
-                # esperar 'response_format' en lugar de 'responde_fromat', 
-                # y 'language' en lugar de 'laguage'.
-                response_format = "json", # CORRECCIÓN de typo
-                language = "es",          # CORRECCIÓN de typo
-                temperature = 1
-            )
+        # Leer archivo COMPLETO en memoria
+        with open(temp_file, "rb") as f:
+            audio_bytes = f.read()
 
-        os.remove(temp_file)
+        # Enviar a Groq
+        transcription = grok_client.audio.transcriptions.create(
+            file=("temp_voice.ogg", audio_bytes),
+            model="whisper-large-v3-turbo",
+            prompt="Transcribe el audio en español.",
+            response_format="json",
+            language="es",
+            temperature=0
+        )
 
-        # OJO: La respuesta de transcripción no suele ser un diccionario.
-        # Es probable que debas acceder al atributo .text o .content 
-        # de la respuesta del SDK de Groq.
-        # Asumiendo que el SDK devuelve un objeto con un atributo 'text':
         return transcription.text
-    
+
     except Exception as e:
         print(f"Error al transcribir: {str(e)}")
         return None
-        """ 
-        
+
+    finally:
+        # Borrar archivo temporal si existe
+        if os.path.exists(temp_file):
+            try:
+                os.remove(temp_file)
+            except Exception:
+                pass
+
+
 #PROGRAMAR LO QUE EL BOT VA A HACER
 
 
@@ -228,7 +228,7 @@ if __name__ == "__main__":
 
         while True:
             try:
-                bot.polling(none_stop= True, interval=0, timeout=20)
+                bot.polling(none_stop= True, interval=0, timeout=25)
             except Exception as e:
                 print(f"Error, no se pudo procesar por: {str(e)}")
                 print("Reiniciando el bot")
